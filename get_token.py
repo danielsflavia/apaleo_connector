@@ -6,7 +6,7 @@ def get_access_token():
         "grant_type": "client_credentials",
         "client_id": "CYME-SP-CONNECTOR",
         "client_secret": "f7dSHAYgpftgG9BYq3h4Z7n5Mtie7r",
-        "scope": "reservations.read folios.read profile:read"
+        "scope": "reservations.read folios.read setup.read"
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     response = requests.post(url, data=data, headers=headers)
