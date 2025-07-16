@@ -51,6 +51,7 @@ class ApaleoHandler(BaseHTTPRequestHandler):
                     <ul>
                         <li><a href="/reservations"> View Reservations </a></li>
                         <li><a href="/folios"> View Folios </a></li>
+                        <li><a href="/properties"> View Properties </a></li>
                     </ul>
                 </body>
             </html>
@@ -72,6 +73,17 @@ class ApaleoHandler(BaseHTTPRequestHandler):
             try:
                 token = get_access_token()
                 data = fetch_data_from_apaleo("/finance/v1/folios", token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/properties":
+            try:
+                token = get_access_token()
+                data = fetch_data_from_apaleo("/inventory/v1/properties", token)
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
