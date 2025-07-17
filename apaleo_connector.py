@@ -4,29 +4,12 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 import requests
 from dotenv import load_dotenv
+from auth import get_access_token  # IMPORT FROM auth.py
 
-# Load environment variables from .env file
+# Load BASE_URL from .env
 load_dotenv()
-CLIENT_ID = os.getenv("APALEO_CLIENT_ID")
-CLIENT_SECRET = os.getenv("APALEO_CLIENT_SECRET")
-SCOPES = os.getenv("APALEO_SCOPES")
 BASE_URL = os.getenv("APALEO_BASE_URL")
 
-# Function to get an OAuth 2.0 access token from Apaleo
-def get_access_token():
-    url = "https://identity.apaleo.com/connect/token"
-    headers = {"Content-Type": "application/x-www-form-urlencoded"}
-    data = {
-        "grant_type": "client_credentials",
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
-        "scope": SCOPES,
-    }
-    response = requests.post(url, headers=headers, data=data)
-    response.raise_for_status()  # Raises an error if the request failed
-    return response.json()["access_token"]
-
-# function to fetch data from any Apaleo endpoint
 def fetch_data_from_apaleo(endpoint, token):
     url = f"{BASE_URL}{endpoint}"
     headers = {"Authorization": f"Bearer {token}"}
