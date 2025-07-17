@@ -1,12 +1,16 @@
+import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def get_access_token():
     url = "https://identity.apaleo.com/connect/token"
     data = {
         "grant_type": "client_credentials",
-        "client_id": "CYME-SP-CONNECTOR",
-        "client_secret": "f7dSHAYgpftgG9BYq3h4Z7n5Mtie7r",
-        "scope": "reservations.read folios.read setup.read"
+        "client_id": os.getenv("APALEO_CLIENT_ID"),
+        "client_secret": os.getenv("APALEO_CLIENT_SECRET"),
+        "scope": os.getenv("APALEO_SCOPES")
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     response = requests.post(url, data=data, headers=headers)
