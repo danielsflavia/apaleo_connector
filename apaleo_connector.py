@@ -35,6 +35,8 @@ class ApaleoHandler(BaseHTTPRequestHandler):
                         <li><a href="/reservations"> View Reservations </a></li>
                         <li><a href="/folios"> View Folios </a></li>
                         <li><a href="/properties"> View Properties </a></li>
+                        <li><a href="/unit-groups"> View Groups </a></li>
+                        <li><a href="/units"> View Units </a></li>
                     </ul>
                 </body>
             </html>
@@ -74,6 +76,29 @@ class ApaleoHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 self.send_error(500, str(e))
 
+        elif path == "/unit-groups":
+            try:
+                token = get_access_token()
+                data = fetch_data_from_apaleo("/inventory/v1/unit-groups", token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/units":
+            try:
+                token = get_access_token()
+                data = fetch_data_from_apaleo("/inventory/v1/units", token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+                
         else:
             self.send_error(404, "Not Found")
 
