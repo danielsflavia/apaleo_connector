@@ -44,6 +44,20 @@ The following GET routes are exposed locally and map directly to Apaleo API endp
 - **Upstream**: `GET /inventory/v1/properties`
 - **Returns**: Property metadata including IDs, names, and descriptions.
 
+### `/unit-groups`
+
+- **Upstream**: `GET /inventory/v1/unit-groups`
+- **Returns**: Room category data (e.g. Single, Double) including ID, name, and capacity.
+
+### `/units`
+
+- **Upstream**: `GET /inventory/v1/units`
+- **Returns**: Individual room data with ID, name, description, and linked unit group.
+
+
+For full access to all available endpoints and details on request parameters, visit the official Apaleo Swagger documentation:
+[https://api.apaleo.com/swagger/index.html](https://api.apaleo.com/swagger/index.html)
+
 ---
 
 ## Usage Notes
