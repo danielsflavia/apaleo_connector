@@ -29,20 +29,20 @@ class ApaleoHandler(BaseHTTPRequestHandler):
             self.end_headers()
             html = """
             <html>
-                <head><title>Apaleo Connector</title></head>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Apaleo Connector</title>
+                </head>
                 <body>
                     <h1>Apaleo API Connector</h1>
                     <ul>
-                        <li><a href="/reservations"> View Reservations </a></li>
-                        <li><a href="/reservations/schema"> View Reservations Schema </a></li>
-                        <li><a href="/folios"> View Folios </a></li>
-                        <li><a href="/folios/schema"> View Folios Schema </a></li>
-                        <li><a href="/properties"> View Properties </a></li>
-                        <li><a href="/properties/schema"> View Properties Schema </a></li>
-                        <li><a href="/unit-groups"> View Groups </a></li>
-                        <li><a href="/unit-groups/schema"> View Groups Schema </a></li>
-                        <li><a href="/units"> View Units </a></li>
-                        <li><a href="/units/schema"> View Units Schema </a></li>
+                        <li><a href="/reservations">Reservations</a> — <a href="/reservations/schema">Schema</a></li>
+                        <li><a href="/bookings">Bookings</a> — <a href="/bookings/schema">Schema</a></li>
+                        <li><a href="/folios">Folios</a> — <a href="/folios/schema">Schema</a></li>
+                        <li><a href="/properties">Properties</a> — <a href="/properties/schema">Schema</a></li>
+                        <li><a href="/unit-groups">Unit Groups</a> — <a href="/unit-groups/schema">Schema</a></li>
+                        <li><a href="/units">Units</a> — <a href="/units/schema">Schema</a></li>
+                        <li><a href="/sources">Sources</a> — <a href="/sources/schema">Schema</a></li>
                     </ul>
                 </body>
             </html>
@@ -63,6 +63,27 @@ class ApaleoHandler(BaseHTTPRequestHandler):
         elif path == "/reservations/schema":
             try:
                 schema = get_schema("/booking/v1/reservations", list_key="reservations")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/bookings":
+            try:
+                token = get_access_token()
+                data = fetch_data_from_apaleo("/booking/v1/bookings", token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))      
+
+        elif path == "/bookings/schema":
+            try:
+                schema = get_schema("/booking/v1/bookings", list_key="bookings")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
@@ -147,6 +168,27 @@ class ApaleoHandler(BaseHTTPRequestHandler):
         elif path == "/units/schema":
             try:
                 schema = get_schema("/inventory/v1/units", list_key="units")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/sources":
+            try:
+                token = get_access_token()
+                data = fetch_data_from_apaleo("/booking/v1/types/sources", token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/sources/schema":
+            try:
+                schema = get_schema("/booking/v1/types/sources", list_key="sources")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()

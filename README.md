@@ -33,6 +33,11 @@ The following GET routes are exposed locally and map directly to Apaleo API endp
 - **Upstream**: `GET /booking/v1/reservations`
 - **Returns**: Reservation data including booking ID, guest info, arrival/departure, and channel code.
 
+### `/bookings`
+
+ - **Upstream**: `GET /booking/v1/bookings`
+- **Returns**: Individual room data with ID, name, description, and linked unit group.
+
 ### `/folios`
 
 - **Upstream**: `GET /finance/v1/folios`
@@ -53,6 +58,10 @@ The following GET routes are exposed locally and map directly to Apaleo API endp
 - **Upstream**: `GET /inventory/v1/units`
 - **Returns**: Individual room data with ID, name, description, and linked unit group.
 
+### `/sources`
+
+- **Upstream**: `GET /booking/v1/types/sources`
+- **Returns**:  A list of supported booking sources (e.g. Direct, Expedia, Booking.com) used to filter or analyze reservation channels
 
 For full access to all available endpoints and details on request parameters, visit the official Apaleo Swagger documentation:
 [https://api.apaleo.com/swagger/index.html](https://api.apaleo.com/swagger/index.html)

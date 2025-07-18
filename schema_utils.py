@@ -1,7 +1,5 @@
 import os
-import json
 import requests
-from dotenv import load_dotenv
 from auth import get_access_token 
 
 BASE_URL = os.getenv("APALEO_BASE_URL")
