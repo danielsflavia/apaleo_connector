@@ -14,7 +14,6 @@ This connector acts as a lightweight bridge to Apaleo’s API-first PMS platform
 - Easy to extend with additional endpoints or data transformations
 - Returns raw Apaleo JSON for downstream processing
 
-=
 ## Environment Variables
 
 The connector reads configuration from a `.env` file:

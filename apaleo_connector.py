@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import requests
 from dotenv import load_dotenv
 from auth import get_access_token  # IMPORT FROM auth.py
+from schema_utils import get_schema
 
 # Load BASE_URL from .env
 load_dotenv()
@@ -33,10 +34,15 @@ class ApaleoHandler(BaseHTTPRequestHandler):
                     <h1>Apaleo API Connector</h1>
                     <ul>
                         <li><a href="/reservations"> View Reservations </a></li>
+                        <li><a href="/reservations/schema"> View Reservations Schema </a></li>
                         <li><a href="/folios"> View Folios </a></li>
+                        <li><a href="/folios/schema"> View Folios Schema </a></li>
                         <li><a href="/properties"> View Properties </a></li>
+                        <li><a href="/properties/schema"> View Properties Schema </a></li>
                         <li><a href="/unit-groups"> View Groups </a></li>
+                        <li><a href="/unit-groups/schema"> View Groups Schema </a></li>
                         <li><a href="/units"> View Units </a></li>
+                        <li><a href="/units/schema"> View Units Schema </a></li>
                     </ul>
                 </body>
             </html>
@@ -54,6 +60,16 @@ class ApaleoHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 self.send_error(500, str(e))
 
+        elif path == "/reservations/schema":
+            try:
+                schema = get_schema("/booking/v1/reservations", list_key="reservations")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
         elif path == "/folios":
             try:
                 token = get_access_token()
@@ -62,6 +78,16 @@ class ApaleoHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/folios/schema":
+            try:
+                schema = get_schema("/finance/v1/folios", list_key="folios")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
             except Exception as e:
                 self.send_error(500, str(e))
 
@@ -76,6 +102,16 @@ class ApaleoHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 self.send_error(500, str(e))
 
+        elif path == "/properties/schema":
+            try:
+                schema = get_schema("/inventory/v1/properties", list_key="properties")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
         elif path == "/unit-groups":
             try:
                 token = get_access_token()
@@ -84,6 +120,16 @@ class ApaleoHandler(BaseHTTPRequestHandler):
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
                 self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/unit-groups/schema":
+            try:
+                schema = get_schema("/inventory/v1/unit-groups", list_key="unitGroups")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
             except Exception as e:
                 self.send_error(500, str(e))
 
@@ -98,7 +144,16 @@ class ApaleoHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 self.send_error(500, str(e))
 
-                
+        elif path == "/units/schema":
+            try:
+                schema = get_schema("/inventory/v1/units", list_key="units")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
         else:
             self.send_error(404, "Not Found")
 
