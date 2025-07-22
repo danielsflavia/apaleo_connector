@@ -170,4 +170,16 @@ if __name__ == "__main__":
     print(df_sorted)
 
 
+    df_reservations = df_reservations.with_columns([
+        pl.col("property").str.json_decode().alias("property_parsed")
+    ])
+    df_reservations = df_reservations.with_columns([
+        pl.col("property_parsed").struct.field("id").alias("property_id")
+    ])
 
+    # Group by property_id and count occurrences
+    df_counts = df_reservations.group_by("property_id").agg([
+        pl.len().alias("count")
+    ]).sort("count", descending=True)
+    print("\n--- Number of Reservations per Hotel ---")
+    print(df_counts)
