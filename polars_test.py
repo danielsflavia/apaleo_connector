@@ -132,3 +132,5 @@ if __name__ == "__main__":
     df_reservations_vie = df_reservations.filter(pl.col("property").str.contains('"id": "VIE"'))
     print("\nReservations in Hotel VIE:")
     print(df_reservations_vie)
+
+    
