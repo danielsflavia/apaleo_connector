@@ -133,4 +133,41 @@ if __name__ == "__main__":
     print("\nReservations in Hotel VIE:")
     print(df_reservations_vie)
 
-    
+
+    # Decode balance JSON string into struct
+    df_folios = df_folios.with_columns([
+        pl.col("balance").str.json_decode().alias("balance_parsed")
+    ])
+
+    # Extract 'amount' and 'currency' as new columns
+    df_folios = df_folios.with_columns([
+        pl.col("balance_parsed").struct.field("amount").alias("amount"),
+        pl.col("balance_parsed").struct.field("currency").alias("currency")
+    ])
+
+    # Define conversion rates
+    conversion_rates = {
+        "EUR": 1.0,
+        "GBP": 1.15,
+        "USD": 0.85
+    }
+
+    # Add conversion rate and converted EUR amount
+    df_folios = df_folios.with_columns([
+        pl.col("currency").map_elements(
+            lambda c: conversion_rates.get(c, 1.0),
+            return_dtype=pl.Float64
+        ).alias("conversion_rate"),
+        (pl.col("amount") * pl.col("currency").map_elements(
+            lambda c: conversion_rates.get(c, 1.0),
+            return_dtype=pl.Float64
+        )).alias("amount_eur")
+    ])
+
+    # Sort by amount and amount in EUR
+    df_sorted = df_folios.sort(["amount", "amount_eur"])
+    print("\ Sorted & Converted Folio Balances to EUR :")
+    print(df_sorted)
+
+
+
