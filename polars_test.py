@@ -183,3 +183,22 @@ if __name__ == "__main__":
     ]).sort("count", descending=True)
     print("\n--- Number of Reservations per Hotel ---")
     print(df_counts)
+
+    # Unit Groups types per hotel
+    df_unit_groups = df_unit_groups.with_columns([
+        pl.col("property").str.json_decode().alias("property_parsed")
+    ])
+    df_unit_groups = df_unit_groups.with_columns([
+        pl.col("property_parsed").struct.field("id").alias("property_id")
+    ])
+
+    df_unit_breakdown = df_unit_groups.select([
+        pl.col("property_id"),
+        pl.col("code"),          
+        pl.col("name"),           
+        pl.col("memberCount")    
+    ])
+
+    df_unit_breakdown = df_unit_breakdown.sort(["property_id", "code"])
+    print("\n--- Unit Types and Room Counts per Property ---")
+    print(df_unit_breakdown)
