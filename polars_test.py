@@ -166,7 +166,7 @@ if __name__ == "__main__":
 
     # Sort by amount and amount in EUR
     df_sorted = df_folios.sort(["amount", "amount_eur"])
-    print("\ Sorted & Converted Folio Balances to EUR :")
+    print("\nSorted & Converted Folio Balances to EUR :")
     print(df_sorted)
 
 

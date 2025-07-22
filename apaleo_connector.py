@@ -4,7 +4,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 import requests
 from dotenv import load_dotenv
-from auth import get_access_token  # IMPORT FROM auth.py
+from auth import get_access_token 
 from schema_utils import get_schema
 
 # Load BASE_URL from .env
@@ -248,4 +248,9 @@ if __name__ == "__main__":
     server_address = ("", port)
     httpd = HTTPServer(server_address, ApaleoHandler)
     print(f"Running at: http://localhost:{port}")
-    httpd.serve_forever()
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\nServer durch CTRL+C gestoppt\n")
+    finally:
+        httpd.server_close()    # Port free
