@@ -14,16 +14,6 @@ def infer_schema_from_sample(data):
         return type(data).__name__
 
 def get_schema(relative_path: str, list_key: str = None):
-    """
-    Calls an Apaleo API endpoint and infers the schema based on a sample record.
-    
-    Args:
-        relative_path: API path like "/booking/v1/reservations"
-        list_key: optional, used to extract the list (e.g. "reservations")
-
-    Returns:
-        dict: JSON-style schema
-    """
     token = get_access_token()
     url = f"{BASE_URL}{relative_path}"
     headers = {"Authorization": f"Bearer {token}"}
@@ -31,13 +21,19 @@ def get_schema(relative_path: str, list_key: str = None):
     response.raise_for_status()
     data = response.json()
 
-    # If response has a nested list under a key (e.g. {"reservations": [...]})
-    if list_key and isinstance(data.get(list_key), list) and data[list_key]:
-        return infer_schema_from_sample(data[list_key][0])
+    schema = {}
 
-    # If response is a direct list (e.g. [...] not wrapped in a key)
+    # Add top-level metadata like 'count'
+    if isinstance(data, dict):
+        for key, value in data.items():
+            # If it's the list_key, we handle it differently
+            if key == list_key and isinstance(value, list) and value:
+                schema[key] = [infer_schema_from_sample(value[0])]
+            elif key != list_key:
+                schema[key] = type(value).__name__
+
+    # If response is a direct list (not wrapped)
     elif isinstance(data, list) and data:
-        return infer_schema_from_sample(data[0])
+        schema = infer_schema_from_sample(data[0])
 
-    # Fallback: empty or unexpected format
-    return {}
+    return schema

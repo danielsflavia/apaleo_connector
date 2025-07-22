@@ -9,6 +9,7 @@ from schema_utils import get_schema
 load_dotenv()
 BASE_URL = os.getenv("APALEO_BASE_URL")
 
+# Converts nested structures (dicts/lists) to strings
 def clean_rows(rows: list[dict]) -> list[dict]:
     return [
         {
@@ -18,6 +19,7 @@ def clean_rows(rows: list[dict]) -> list[dict]:
         for row in rows
     ]
 
+# Maps Schema to Polars
 def build_polars_schema(schema: dict) -> dict:
     def resolve_type(t):
         if isinstance(t, list):
@@ -36,6 +38,7 @@ def build_polars_schema(schema: dict) -> dict:
             return pl.String
     return {key: resolve_type(t) for key, t in schema.items()}
 
+# Fetches raw Apaleo Data using access token
 def fetch_data(relative_path: str, list_key: str = None) -> list[dict]:
     token = get_access_token()
     url = f"{BASE_URL}{relative_path}"
@@ -49,38 +52,81 @@ def fetch_data(relative_path: str, list_key: str = None) -> list[dict]:
         return data
     return []
 
-# Example DataFrame loaders — call only when needed
+# Example DataFrame loaders
 def load_reservations_df():
     rows = fetch_data("/booking/v1/reservations", list_key="reservations")
-    schema = get_schema("/booking/v1/reservations", list_key="reservations")
+    schema = get_schema("/booking/v1/reservations", list_key="reservations")["reservations"][0]
+    return pl.from_dicts(clean_rows(rows), schema=build_polars_schema(schema))
+
+def load_bookings_df():
+    rows = fetch_data("/booking/v1/bookings", list_key="bookings")
+    schema = get_schema("/booking/v1/bookings", list_key="bookings")["bookings"][0]
     return pl.from_dicts(clean_rows(rows), schema=build_polars_schema(schema))
 
 def load_folios_df():
     rows = fetch_data("/finance/v1/folios", list_key="folios")
-    schema = get_schema("/finance/v1/folios", list_key="folios")
+    schema = get_schema("/finance/v1/folios", list_key="folios")["folios"][0]
     return pl.from_dicts(clean_rows(rows), schema=build_polars_schema(schema))
 
 def load_properties_df():
     rows = fetch_data("/inventory/v1/properties", list_key="properties")
-    schema = get_schema("/inventory/v1/properties", list_key="properties")
+    schema = get_schema("/inventory/v1/properties", list_key="properties")["properties"][0]
     return pl.from_dicts(clean_rows(rows), schema=build_polars_schema(schema))
 
 def load_unit_groups_df():
     rows = fetch_data("/inventory/v1/unit-groups", list_key="unitGroups")
-    schema = get_schema("/inventory/v1/unit-groups", list_key="unitGroups")
+    schema = get_schema("/inventory/v1/unit-groups", list_key="unitGroups")["unitGroups"][0]
     return pl.from_dicts(clean_rows(rows), schema=build_polars_schema(schema))
 
 def load_units_df():
     rows = fetch_data("/inventory/v1/units", list_key="units")
-    schema = get_schema("/inventory/v1/units", list_key="units")
+    schema = get_schema("/inventory/v1/units", list_key="units")["units"][0]
     return pl.from_dicts(clean_rows(rows), schema=build_polars_schema(schema))
 
+def load_services_df():
+    rows = fetch_data("/rateplan/v1/services", list_key="services")
+    schema = get_schema("/rateplan/v1/services", list_key="services")["services"][0]
+    return pl.from_dicts(clean_rows(rows), schema=build_polars_schema(schema))
+
+def load_capturepolicies_df():
+    rows = fetch_data("/settings/v1/capture-policies", list_key="capturePolicies")
+    schema = get_schema("/settings/v1/capture-policies", list_key="capturePolicies")["capturePolicies"][0]
+    return pl.from_dicts(clean_rows(rows), schema=build_polars_schema(schema))
 
 # Example usage
 if __name__ == "__main__":
+
     print("\n--- Reservations Table ---")
     df_reservations = load_reservations_df()
     print(df_reservations.head())
+
+    print("\n--- Bookings Table ---")
+    df_booking = load_bookings_df()
+    print(df_booking.head())
+
+    print("\n--- Folios Table ---")
+    df_folios = load_folios_df()
+    print(df_folios.head())
+
+    print("\n--- Properties Table ---")
+    df_properties = load_properties_df()
+    print(df_properties)
+
+    print("\n--- Unit Groups Table ---")    
+    df_unit_groups = load_unit_groups_df()
+    print(df_unit_groups)
+
+    print("\n--- Units Table ---")
+    df_units = load_units_df()
+    print(df_units)
+
+    print("\n--- capturePolicies Table ---")
+    df_capturepolicies = load_capturepolicies_df()
+    print(df_capturepolicies)
+
+    print("\n--- Services Table ---")
+    df_services = load_services_df()
+    print(df_services)
 
     # Filter all reservations from hotel 'VIE'
     df_reservations_vie = df_reservations.filter(pl.col("property").str.contains('"id": "VIE"'))

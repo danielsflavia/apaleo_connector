@@ -61,7 +61,18 @@ The following GET routes are exposed locally and map directly to Apaleo API endp
 ### `/sources`
 
 - **Upstream**: `GET /booking/v1/types/sources`
-- **Returns**:  A list of supported booking sources (e.g. Direct, Expedia, Booking.com) used to filter or analyze reservation channels
+- **Returns**:  A list of supported booking sources (e.g. Direct, Expedia, Booking.com) used to filter or analyze reservation channels.
+
+### `/services`
+
+- **Upstream**: `GET /rateplan/v1/services`
+- **Returns**:  A list of services each Hotel offers (e.g. Breakfast, Wifi, Yoga).
+
+### `/capture-policies`
+
+- **Upstream**: `GET /settings/v1/capture-policies`
+- **Returns**:  A list of capture policies (e.g. CancellationFee, Prepayment).
+
 
 For full access to all available endpoints and details on request parameters, visit the official Apaleo Swagger documentation:
 [https://api.apaleo.com/swagger/index.html](https://api.apaleo.com/swagger/index.html)

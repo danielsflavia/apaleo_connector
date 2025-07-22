@@ -34,7 +34,7 @@ class ApaleoHandler(BaseHTTPRequestHandler):
                     <title>Apaleo Connector</title>
                 </head>
                 <body>
-                    <h1>Apaleo API Connector</h1>
+                    <h1>Apaleo Connector</h1>
                     <ul>
                         <li><a href="/reservations">Reservations</a> — <a href="/reservations/schema">Schema</a></li>
                         <li><a href="/bookings">Bookings</a> — <a href="/bookings/schema">Schema</a></li>
@@ -43,6 +43,8 @@ class ApaleoHandler(BaseHTTPRequestHandler):
                         <li><a href="/unit-groups">Unit Groups</a> — <a href="/unit-groups/schema">Schema</a></li>
                         <li><a href="/units">Units</a> — <a href="/units/schema">Schema</a></li>
                         <li><a href="/sources">Sources</a> — <a href="/sources/schema">Schema</a></li>
+                        <li><a href="/services">Services</a> — <a href="/services/schema">Schema</a></li>
+                        <li><a href="/capture-policies">capture-policies</a> — <a href="/capture-policies/schema">Schema</a></li>
                     </ul>
                 </body>
             </html>
@@ -189,6 +191,48 @@ class ApaleoHandler(BaseHTTPRequestHandler):
         elif path == "/sources/schema":
             try:
                 schema = get_schema("/booking/v1/types/sources", list_key="sources")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/services":
+            try:
+                token = get_access_token()
+                data = fetch_data_from_apaleo("/rateplan/v1/services", token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/services/schema":
+            try:
+                schema = get_schema("/rateplan/v1/services", list_key="services")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/capture-policies":
+            try:
+                token = get_access_token()
+                data = fetch_data_from_apaleo('/settings/v1/capture-policies', token)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(data.encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/capture-policies/schema":
+            try:
+                schema = get_schema("/settings/v1/capture-policies", list_key="capturePolicies")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
