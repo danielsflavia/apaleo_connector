@@ -6,6 +6,7 @@ import requests
 from dotenv import load_dotenv
 from auth import get_access_token 
 from schema_utils import get_schema
+from urllib.parse import parse_qs
 
 # Load BASE_URL from .env
 load_dotenv()
@@ -45,6 +46,7 @@ class ApaleoHandler(BaseHTTPRequestHandler):
                         <li><a href="/sources">Sources</a> — <a href="/sources/schema">Schema</a></li>
                         <li><a href="/services">Services</a> — <a href="/services/schema">Schema</a></li>
                         <li><a href="/capture-policies">capture-policies</a> — <a href="/capture-policies/schema">Schema</a></li>
+                        <li><a href="/age-categories">Age Categories</a> — <a href="/age-categories/schema">Schema</a></li>
                     </ul>
                 </body>
             </html>
@@ -233,6 +235,61 @@ class ApaleoHandler(BaseHTTPRequestHandler):
         elif path == "/capture-policies/schema":
             try:
                 schema = get_schema("/settings/v1/capture-policies", list_key="capturePolicies")
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(schema, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/age-categories":
+            try:
+                token = get_access_token()
+                query = urlparse(self.path).query
+                parsed_query = parse_qs(query)
+                requested_ids = []
+                if "propertyId" in parsed_query:
+                    for value in parsed_query["propertyId"]:
+                        requested_ids.extend(pid.strip().upper() for pid in value.split(",") if pid.strip())
+                if not requested_ids:
+                    prop_response = fetch_data_from_apaleo("/inventory/v1/properties", token)
+                    prop_data = json.loads(prop_response)
+                    requested_ids = [p["id"] for p in prop_data.get("properties", [])]
+                all_data = []
+                for prop_id in requested_ids:
+                    endpoint = f"/settings/v1/age-categories?propertyId={prop_id}"
+                    try:
+                        response = fetch_data_from_apaleo(endpoint, token)
+                        parsed = json.loads(response)
+                        categories = parsed.get("ageCategories", [])
+                        if categories:
+                            for cat in categories:
+                                cat["propertyId"] = cat.get("propertyId", prop_id)
+                                all_data.append(cat)
+                        else:
+                            print(f"[INFO] No age categories for {prop_id}")
+                    except Exception as e:
+                        print(f"[ERROR] Failed to fetch for {prop_id}: {e}")
+                        continue
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(all_data, indent=2).encode("utf-8"))
+            except Exception as e:
+                self.send_error(500, str(e))
+
+        elif path == "/age-categories/schema":
+            try:
+                token = get_access_token()
+                prop_response = fetch_data_from_apaleo("/inventory/v1/properties", token)
+                prop_data = json.loads(prop_response)
+                properties = prop_data.get("properties", [])
+                if not properties:
+                    raise Exception("No properties found for schema generation.")
+                first_id = properties[0].get("id")
+                if not first_id:
+                    raise Exception("No valid propertyId found.")
+                schema = get_schema(f"/settings/v1/age-categories?propertyId={first_id}", list_key="ageCategories")
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()

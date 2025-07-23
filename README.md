@@ -73,6 +73,8 @@ The following GET routes are exposed locally and map directly to Apaleo API endp
 - **Upstream**: `GET /settings/v1/capture-policies`
 - **Returns**:  A list of capture policies (e.g. CancellationFee, Prepayment).
 
+## `
+
 
 For full access to all available endpoints and details on request parameters, visit the official Apaleo Swagger documentation:
 [https://api.apaleo.com/swagger/index.html](https://api.apaleo.com/swagger/index.html)
