@@ -73,7 +73,7 @@ The following GET routes are exposed locally and map directly to Apaleo API endp
 - **Upstream**: `GET /settings/v1/capture-policies`
 - **Returns**:  A list of capture policies (e.g. CancellationFee, Prepayment).
 
-## `age-categories`
+### `/age-categories`
 
 - **Upstream**: `GET /settings/v1/age-categories`
 - **Returns**: A list of age category definitions configured for the specified property (e.g. "Child", "Adult", with min/max ages).
