@@ -98,8 +98,14 @@ if __name__ == "__main__":
 
     print("\n--- Reservations Table ---")
     df_reservations = load_reservations_df()
-    print(df_reservations.head())
 
+    print("\n--- Unit Groups Table ---")    
+    df_unit_groups = load_unit_groups_df()
+
+    print("\n--- Units Table ---")
+    df_units = load_units_df()
+
+    '''
     print("\n--- Bookings Table ---")
     df_booking = load_bookings_df()
     print(df_booking.head())
@@ -111,14 +117,6 @@ if __name__ == "__main__":
     print("\n--- Properties Table ---")
     df_properties = load_properties_df()
     print(df_properties)
-
-    print("\n--- Unit Groups Table ---")    
-    df_unit_groups = load_unit_groups_df()
-    print(df_unit_groups)
-
-    print("\n--- Units Table ---")
-    df_units = load_units_df()
-    print(df_units)
 
     print("\n--- capturePolicies Table ---")
     df_capturepolicies = load_capturepolicies_df()
@@ -169,14 +167,14 @@ if __name__ == "__main__":
     print("\nSorted & Converted Folio Balances to EUR :")
     print(df_sorted)
 
-
+  '''
     df_reservations = df_reservations.with_columns([
         pl.col("property").str.json_decode().alias("property_parsed")
     ])
     df_reservations = df_reservations.with_columns([
         pl.col("property_parsed").struct.field("id").alias("property_id")
     ])
-
+  
     # Group by property_id and count occurrences
     df_counts = df_reservations.group_by("property_id").agg([
         pl.len().alias("count")
@@ -202,3 +200,28 @@ if __name__ == "__main__":
     df_unit_breakdown = df_unit_breakdown.sort(["property_id", "code"])
     print("\n--- Unit Types and Room Counts per Property ---")
     print(df_unit_breakdown)
+ 
+
+    # Reservations per Hotel
+    print("Reservations per Hotel")
+    df_counts = df_reservations.group_by("property_id").agg([
+        pl.len().alias("reservations")
+    ]).sort("reservations", descending=True)
+    print(df_counts)
+
+    # Reservations per Hotel Room units
+    print("Number of Units and Total Guest Capacity per Property and Room Type")
+    df_units = df_units.with_columns([
+        pl.col("property").map_elements(lambda s: json.loads(s).get("id"), return_dtype=pl.String).alias("property_id"),
+        pl.col("unitGroup").map_elements(lambda s: json.loads(s).get("id"), return_dtype=pl.String).alias("unit_group_id"),
+        pl.col("status").map_elements(lambda s: json.loads(s).get("isOccupied"), return_dtype=pl.Boolean).alias("is_occupied"),
+    ])
+
+
+    df_unit_summary = df_units.group_by(["property_id", "unit_group_id"]).agg([
+        pl.len().alias("num_units"),
+        pl.sum("maxPersons").alias("total_capacity"),
+        pl.sum("is_occupied").alias("units_occupied"),
+    ])
+
+    print(df_unit_summary)
