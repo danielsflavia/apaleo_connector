@@ -105,14 +105,13 @@ if __name__ == "__main__":
     print("\n--- Units Table ---")
     df_units = load_units_df()
 
+    print("\n--- Folios Table ---")
+    df_folios = load_folios_df()
+
     '''
     print("\n--- Bookings Table ---")
     df_booking = load_bookings_df()
     print(df_booking.head())
-
-    print("\n--- Folios Table ---")
-    df_folios = load_folios_df()
-    print(df_folios.head())
 
     print("\n--- Properties Table ---")
     df_properties = load_properties_df()
@@ -216,12 +215,29 @@ if __name__ == "__main__":
         pl.col("unitGroup").map_elements(lambda s: json.loads(s).get("id"), return_dtype=pl.String).alias("unit_group_id"),
         pl.col("status").map_elements(lambda s: json.loads(s).get("isOccupied"), return_dtype=pl.Boolean).alias("is_occupied"),
     ])
-
-
     df_unit_summary = df_units.group_by(["property_id", "unit_group_id"]).agg([
         pl.len().alias("num_units"),
         pl.sum("maxPersons").alias("total_capacity"),
         pl.sum("is_occupied").alias("units_occupied"),
     ])
-
     print(df_unit_summary)
+
+    # Balance per Property and Currency
+    df_folios = df_folios.with_columns([
+        pl.col("balance").str.json_decode().alias("balance_parsed")
+    ]).with_columns([
+        pl.col("balance_parsed").struct.field("amount").alias("amount"),
+        pl.col("balance_parsed").struct.field("currency").alias("currency")
+    ])
+    df_folio_summary = df_folios.select(
+        df_folios
+        .group_by(["id", "currency"])
+        .agg([
+            pl.sum("amount").alias("total_balance")
+        ])
+        .sort("id")
+    )
+    print("\nBalances per Property and Currency")
+    print(df_folio_summary)
+
+    df_folio_summary.write_csv("folio_summary.csv")
